@@ -1,0 +1,118 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Fields: uid, email, displayName, isPro, createdAt, role, planType, purchaseDate
+    //
+    // Collection: /users/{userId}/products/{productId}
+    // Fields: id, name, packageType, quantityPackages, unitsPerPackage, totalCost, unitCost, totalUnits, currentStock, minStock, singleUnitPrice, bulkQuantity, bulkPrice, imageUrl, ownerId
+    //
+    // Collection: /users/{userId}/sales/{saleId}
+    // Fields: id, date, productId, productName, quantity, unitPrice, unitCostAtSale, revenue, totalCost, profit, ownerId
+    //
+    // Collection: /users/{userId}/expenses/{expenseId}
+    // Fields: id, date, description, value, ownerId
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (request.auth.token.email == "elieltonsilvak2@gmail.com" && request.auth.token.email_verified == true ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin'));
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return (data.get('uid', request.auth.uid) == request.auth.uid) &&
+             (data.get('isPro', false) is bool);
+    }
+
+    function isValidProduct(data, userId) {
+      return data.get('ownerId', userId) == userId &&
+             data.get('name', '') is string;
+    }
+
+    function isValidSale(data, userId) {
+      return data.get('ownerId', userId) == userId &&
+             data.get('revenue', 0) is number;
+    }
+
+    function isValidExpense(data, userId) {
+      return data.get('ownerId', userId) == userId &&
+             data.get('value', 0) is number;
+    }
+
+    function isValidTesterList(data, userId) {
+      return data.get('ownerId', userId) == userId &&
+             data.get('name', '') is string && data.get('name', '').size() <= 200 &&
+             data.get('emails', []) is list && data.get('emails', []).size() <= 1000;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) || isAdmin();
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data)) || isAdmin();
+
+      match /products/{productId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidProduct(request.resource.data, userId) || isAdmin();
+        allow update: if isOwner(userId) && isValidProduct(request.resource.data, userId) || isAdmin();
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /sales/{saleId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidSale(request.resource.data, userId) || isAdmin();
+        allow update: if isOwner(userId) && isValidSale(request.resource.data, userId) || isAdmin();
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /expenses/{expenseId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidExpense(request.resource.data, userId) || isAdmin();
+        allow update: if isOwner(userId) && isValidExpense(request.resource.data, userId) || isAdmin();
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /testerLists {
+        allow list: if isOwner(userId) || isAdmin();
+      }
+      match /testerLists/{listId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidTesterList(request.resource.data, userId) || isAdmin();
+        allow update: if isOwner(userId) && isValidTesterList(request.resource.data, userId) || isAdmin();
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+  }
+}

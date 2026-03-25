@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VendaPro: Gestão e Lucro</string>
+    <string name="title_activity_main">VendaPro: Gestão e Lucro</string>
+    <string name="package_name">com.vendapro.gestao</string>
+    <string name="custom_url_scheme">com.vendapro.gestao</string>
+</resources>

@@ -1,0 +1,129 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile and subscription status",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "isPro": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "assets": {
+          "type": "object",
+          "properties": {
+            "iconUrl": { "type": "string" },
+            "featureUrl": { "type": "string" },
+            "videoUrl": { "type": "string" },
+            "customFeatureUrl": { "type": "string" },
+            "spatialXrVideoUrl": { "type": "string" },
+            "nonSpatialXrVideoUrl": { "type": "string" }
+          }
+        },
+        "screenshots": {
+          "type": "object",
+          "properties": {
+            "phone": { "type": "array", "items": { "type": "string" } },
+            "tablet7": { "type": "array", "items": { "type": "string" } },
+            "tablet10": { "type": "array", "items": { "type": "string" } },
+            "chromebook": { "type": "array", "items": { "type": "string" } },
+            "androidXr": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "storeListing": {
+          "type": "object",
+          "properties": {
+            "appName": { "type": "string" },
+            "shortDescription": { "type": "string" },
+            "fullDescription": { "type": "string" }
+          }
+        }
+      },
+      "required": ["uid", "email", "isPro"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Product inventory item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "costPrice": { "type": "number" },
+        "singleUnitPrice": { "type": "number" },
+        "bulkQuantity": { "type": "number" },
+        "bulkPrice": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["id", "name", "costPrice", "ownerId"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Sales record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "quantity": { "type": "number" },
+        "revenue": { "type": "number" },
+        "totalCost": { "type": "number" },
+        "profit": { "type": "number" },
+        "date": { "type": "string", "format": "date" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["id", "productId", "revenue", "ownerId"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "General expense record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["id", "description", "amount", "ownerId"]
+    },
+    "TesterList": {
+      "title": "Tester List",
+      "description": "Email list for app testing",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "emails": { "type": "array", "items": { "type": "string", "format": "email" } },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "emails", "ownerId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/users/{userId}/products/{productId}": {
+      "schema": "Product",
+      "description": "User products"
+    },
+    "/users/{userId}/sales/{saleId}": {
+      "schema": "Sale",
+      "description": "User sales"
+    },
+    "/users/{userId}/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "User expenses"
+    },
+    "/users/{userId}/testerLists/{listId}": {
+      "schema": "TesterList",
+      "description": "User tester lists"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "VendaPro: Gestão e Lucro",
+  "description": "A plataforma profissional para gestão inteligente de produtos, estoque, vendas e lucros.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
