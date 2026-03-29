@@ -1,17 +1,8 @@
-# Pastas de dependências e builds
 node_modules/
-dist/
 build/
-
-# Pastas e arquivos do Android (gerados automaticamente)
-android/app/build/
-android/app/src/main/assets/public/
-android/gradle/wrapper/gradle-wrapper.jar
-android/gradle/wrapper/gradle-wrapper.properties
-.gradle/
-
-# Arquivos de sistema e ambiente
-.env
+dist/
+coverage/
 .DS_Store
-Thumbs.db
 *.log
+.env*
+!.env.example
