@@ -37,6 +37,29 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Regenerate Gradle Wrapper
+        run: |
+          cd android
+          # Ensure directory exists
+          mkdir -p gradle/wrapper
+          
+          # Use curl to download the wrapper jar directly if 'gradle' command fails
+          # This is the most reliable way to get the jar
+          if ! command -v gradle &> /dev/null; then
+            echo "Gradle command not found, downloading wrapper jar directly..."
+            curl -L -f https://raw.githubusercontent.com/gradle/gradle/v8.13/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+            curl -L -f https://raw.githubusercontent.com/gradle/gradle/v8.13/gradle/wrapper/gradle-wrapper.properties -o gradle/wrapper/gradle-wrapper.properties
+          else
+            echo "Gradle command found, generating wrapper..."
+            gradle wrapper --gradle-version 8.13
+          fi
+          
+          # Verify file exists
+          ls -l gradle/wrapper/gradle-wrapper.jar
+          
+          # Ensure execution permissions
+          chmod +x gradlew
+
       - name: Build Android AAB (Unsigned)
         run: |
           cd android
